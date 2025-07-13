@@ -1,0 +1,292 @@
+[
+  {
+    "id": "85ba7eee97a55615",
+    "type": "tab",
+    "label": "公司出勤監控",
+    "disabled": false,
+    "info": ""
+  },
+  {
+    "id": "a7f1bf3373cf9ff3",
+    "type": "inject",
+    "z": "85ba7eee97a55615",
+    "name": "每10秒取環境資料",
+    "props": [],
+    "repeat": "10",
+    "once": true,
+    "x": 170,
+    "y": 20,
+    "wires": [
+      [
+        "4d9efe09b72885f3"
+      ]
+    ]
+  },
+  {
+    "id": "4d9efe09b72885f3",
+    "type": "http request",
+    "z": "85ba7eee97a55615",
+    "name": "GET 環境資料",
+    "method": "GET",
+    "ret": "obj",
+    "paytoqs": "ignore",
+    "url": "http://192.168.0.231/get_env_data1326.php",
+    "tls": "",
+    "persist": false,
+    "proxy": "",
+    "insecureHTTPParser": false,
+    "authType": "",
+    "senderr": false,
+    "headers": [],
+    "x": 300,
+    "y": 60,
+    "wires": [
+      [
+        "function_latest_temp_humi"
+      ]
+    ]
+  },
+  {
+    "id": "a412498417484b85",
+    "type": "ui_chart",
+    "z": "85ba7eee97a55615",
+    "name": "溫濕度折線圖",
+    "group": "group1",
+    "order": 0,
+    "width": 0,
+    "height": 0,
+    "label": "環境溫濕度",
+    "chartType": "line",
+    "legend": "true",
+    "xformat": "HH:mm:ss",
+    "interpolate": "linear",
+    "nodata": "",
+    "dot": false,
+    "ymin": "0",
+    "ymax": "100",
+    "removeOlder": "30",
+    "removeOlderPoints": "",
+    "removeOlderUnit": "count",
+    "outputs": 1,
+    "x": 570,
+    "y": 100,
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "c324ae93f85c8836",
+    "type": "inject",
+    "z": "85ba7eee97a55615",
+    "name": "每10秒查公司人數",
+    "props": [],
+    "repeat": "10",
+    "once": true,
+    "x": 290,
+    "y": 140,
+    "wires": [
+      [
+        "77852482225fabab"
+      ]
+    ]
+  },
+  {
+    "id": "77852482225fabab",
+    "type": "http request",
+    "z": "85ba7eee97a55615",
+    "name": "GET 公司人數",
+    "method": "GET",
+    "ret": "obj",
+    "url": "http://192.168.0.231/get_company_count1326.php",
+    "x": 120,
+    "y": 240,
+    "wires": [
+      [
+        "94c79059b6ba43f7"
+      ]
+    ]
+  },
+  {
+    "id": "68fdd45816410222",
+    "type": "ui_gauge",
+    "z": "85ba7eee97a55615",
+    "name": "目前公司人數",
+    "group": "92f75a1b40ef5d7d",
+    "order": 0,
+    "width": 0,
+    "height": 0,
+    "gtype": "gage",
+    "title": "公司內人數",
+    "label": "人",
+    "format": "{{value}}",
+    "min": 0,
+    "max": "30",
+    "colors": [
+      "#00b500",
+      "#e6e600",
+      "#ca3838"
+    ],
+    "seg1": "",
+    "seg2": "",
+    "diff": false,
+    "className": "",
+    "x": 580,
+    "y": 200,
+    "wires": []
+  },
+  {
+    "id": "ef96ba7d9b165832",
+    "type": "function",
+    "z": "85ba7eee97a55615",
+    "name": "判斷開燈或關燈",
+    "func": "if (msg.payload.in_office_count > 0) {\n    msg.url = \"http://192.168.0.123/led/on\";\n} else {\n    msg.url = \"http://192.168.0.123/led/off\";\n}\nreturn msg;",
+    "outputs": 1,
+    "x": 310,
+    "y": 300,
+    "wires": [
+      [
+        "0acc3c5cf5415d58"
+      ]
+    ]
+  },
+  {
+    "id": "0acc3c5cf5415d58",
+    "type": "http request",
+    "z": "85ba7eee97a55615",
+    "name": "控制燈開關",
+    "method": "GET",
+    "ret": "txt",
+    "paytoqs": "ignore",
+    "url": "",
+    "tls": "",
+    "persist": false,
+    "proxy": "",
+    "insecureHTTPParser": false,
+    "authType": "",
+    "senderr": false,
+    "headers": [],
+    "x": 560,
+    "y": 300,
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "94c79059b6ba43f7",
+    "type": "function",
+    "z": "85ba7eee97a55615",
+    "name": "取出人數",
+    "func": "\nmsg.payload = msg.payload.in_office_count;\nreturn msg;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 340,
+    "y": 260,
+    "wires": [
+      [
+        "68fdd45816410222"
+      ]
+    ]
+  },
+  {
+    "id": "group1",
+    "type": "ui_group",
+    "name": "DHT Group",
+    "tab": "tab1",
+    "order": 1,
+    "disp": true,
+    "width": "6",
+    "collapse": false
+  },
+  {
+    "id": "92f75a1b40ef5d7d",
+    "type": "ui_group",
+    "name": "公司狀態",
+    "tab": "tab1",
+    "order": 2,
+    "disp": true,
+    "width": "6",
+    "collapse": false
+  },
+  {
+    "id": "tab1",
+    "type": "ui_tab",
+    "name": "DHT Dashboard",
+    "icon": "dashboard",
+    "order": 1
+  },
+  {
+    "id": "function_latest_temp_humi",
+    "type": "function",
+    "z": "85ba7eee97a55615",
+    "name": "取出最新溫溼度",
+    "func": "\nlet latest = msg.payload[msg.payload.length - 1];\nreturn [\n  { payload: latest.temperature },\n  { payload: latest.humidity }\n];\n",
+    "outputs": 2,
+    "noerr": 0,
+    "x": 450,
+    "y": 60,
+    "wires": [
+      [
+        "gauge_temp"
+      ],
+      [
+        "gauge_humi"
+      ]
+    ]
+  },
+  {
+    "id": "gauge_temp",
+    "type": "ui_gauge",
+    "z": "85ba7eee97a55615",
+    "name": "目前溫度",
+    "group": "group1",
+    "order": 1,
+    "width": 3,
+    "height": 3,
+    "gtype": "gage",
+    "title": "溫度",
+    "label": "°C",
+    "format": "{{value}}",
+    "min": 0,
+    "max": 50,
+    "colors": [
+      "#00b500",
+      "#e6e600",
+      "#ca3838"
+    ],
+    "seg1": "",
+    "seg2": "",
+    "x": 700,
+    "y": 40,
+    "wires": []
+  },
+  {
+    "id": "gauge_humi",
+    "type": "ui_gauge",
+    "z": "85ba7eee97a55615",
+    "name": "目前濕度",
+    "group": "group1",
+    "order": 2,
+    "width": 3,
+    "height": 3,
+    "gtype": "gage",
+    "title": "濕度",
+    "label": "%",
+    "format": "{{value}}",
+    "min": 0,
+    "max": 100,
+    "colors": [
+      "#00b500",
+      "#e6e600",
+      "#ca3838"
+    ],
+    "seg1": "",
+    "seg2": "",
+    "x": 700,
+    "y": 80,
+    "wires": []
+  }
+]
